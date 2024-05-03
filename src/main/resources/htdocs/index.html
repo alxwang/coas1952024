@@ -1,0 +1,126 @@
+<HTML>
+<head>
+    <title>AirCraft</title>
+</head>
+<body>
+<h1>List of AirCraft</h1>
+<form id="dataForm">
+    <label for="id">ID</label>
+    <input type="text" id="id" name="id" />
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" />
+    <label for="country">Country</label>
+    <input type="text" id="country" name="country" />
+    <label for="year">Year</label>
+    <input type="text" id="year" name="year" />
+    <input type="submit" value="Submit" />
+    <button type="button" onclick="deleteData()">Delete</button>
+</form>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Country</th>
+        <th>Year</th>
+    </tr>
+    </thead>
+    <tbody id="listTable">
+    </tbody>
+</table>
+<script>
+
+    function deleteData() {
+        let id = document.getElementById('id').value;
+        fetch(`http://localhost:7070/aircrafts/${id}`, {
+            method: 'DELETE'
+        })
+            .then(response =>
+            {
+                window.location.reload();
+            })
+            .then(data => {
+            });
+    }
+
+
+    const listTable = document.getElementById('listTable');
+    const dataForm = document.getElementById('dataForm');
+
+    // Fetch data from remote URL
+    fetch('http://localhost:7070/aircrafts')
+        .then(response => response.json())
+        .then(data => {
+            // Populate the table with data
+            data.forEach(row => {
+                // Create HTML table row
+                const rowElement = document.createElement('tr');
+                // Create a hyperlink for the ID
+                const idLink = document.createElement('a');
+                idLink.href = '#';
+                idLink.addEventListener('click', event => {
+                    // Populate the form with the row data
+                    document.getElementById('id').value = row.id;
+                    document.getElementById('name').value = row.name;
+                    document.getElementById('country').value = row.country;
+                    document.getElementById('year').value = row.year;
+                });
+                idLink.innerText = row.id;
+                // Append the ID to the row
+                const idCell = document.createElement('td');
+                idCell.appendChild(idLink);
+                rowElement.appendChild(idCell);
+                // Append the name to the row
+                const nameCell = document.createElement('td');
+                nameCell.innerText = row.name;
+                rowElement.appendChild(nameCell);
+                // Append the country to the row
+                const countryCell = document.createElement('td');
+                countryCell.innerText = row.country;
+                rowElement.appendChild(countryCell);
+                // Append the year to the row
+                const yearCell = document.createElement('td');
+                yearCell.innerText = row.year;
+                rowElement.appendChild(yearCell);
+                // Append the row to the table
+                listTable.appendChild(rowElement);
+            });
+        });
+
+    // Handle form submit
+    dataForm.addEventListener('submit', event => {
+        // Prevent the default form submit
+        event.preventDefault();
+        // Get the form data
+        const formData = new FormData(dataForm);
+        // Convert the form data to a JSON
+        const jsonData = Object.fromEntries(formData);
+        // Send the JSON to the remote URL
+        const url = 'http://localhost:7070/aircrafts';
+        let method;
+        if (jsonData.id) {
+            method = 'PUT';
+        } else {
+            method = 'POST';
+        }
+        fetch(url, {
+            method: method,
+            body: JSON.stringify(jsonData),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+
+                window.location.reload();
+
+            })
+            .then(data => {
+                // Handle response from the server
+                // ...
+
+            });
+    });
+</script>
+</body>
+</html>
